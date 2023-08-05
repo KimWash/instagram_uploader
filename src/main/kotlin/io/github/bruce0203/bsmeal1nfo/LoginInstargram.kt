@@ -17,7 +17,7 @@ fun getTOTPCode(secretKey: String?): String? {
 fun login(): IGClient {
     val inputCode = Callable { getTOTPCode(System.getenv("OTP_SECRET")) }
     return IGClient.builder()
-        .username(System.getenv("INSTARGRAM_USERNAME"))
-        .password(System.getenv("INSTARGRAM_PASSWORD"))
+        .username(System.getenv("INSTAGRAM_USERNAME"))
+        .password(System.getenv("INSTAGRAM_PASSWORD"))
         .login()
 }
