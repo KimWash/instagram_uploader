@@ -19,6 +19,14 @@ class GitService {
     private val gitRepository = System.getenv("GITHUB_REPOSITORY")
     private val remoteRepoURI = "https://github.com/${gitUsername}/${gitRepository}.git"
 
+    init {
+        println("""
+            ---------
+            ${gitUsername}의 ${gitRepository}에 접근합니다. URL: ${remoteRepoURI}
+            $localRepoPath 에 clone 할게요. 
+            ---------
+        """.trimIndent())
+    }
     private val git = Git.cloneRepository()
         .setURI(remoteRepoURI)
         .setDirectory(File(localRepoPath))
