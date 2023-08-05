@@ -19,6 +19,8 @@ class GitService {
     private val gitRepository = System.getenv("GITHUB_REPOSITORY")
     private val remoteRepoURI = "https://github.com/${gitUsername}/${gitRepository}.git"
 
+    private val git = Git.open(File(localRepoPath))
+
     init {
         println(
             """
@@ -28,9 +30,15 @@ class GitService {
             ---------
         """.trimIndent()
         )
+
+        println("""
+            ${git.repository.directory},
+            ${git.repository.repositoryState},
+            ${git.repository.branch},
+            ${git.repository.remoteNames},
+        """.trimIndent())
     }
 
-    private val git = Git.open(File(localRepoPath))
 
     fun getLatestCommitHash(): String {
         git.checkout().setName("dev").call() // Checkout the 'dev' branch
@@ -73,14 +81,10 @@ class GitService {
     }
 
     fun fetchRemoteChanges() {
-        val git = Git.open(File(localRepoPath))
-
         git.fetch().call() // Fetch changes from the remote repository
     }
 
     fun pullRemoteChanges() {
-        val git = Git.open(File(localRepoPath))
-
         git.pull().setRemoteBranchName("dev")
             .call() // Pull changes from the remote repository and merge them into the local branch
     }
