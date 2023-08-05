@@ -17,6 +17,10 @@ class PostService(
             val regexCodeBlocks = """```[^`]*```""".toRegex()
             val regexHtmlTags = """<[^>]*>""".toRegex()
             val regexMarkdownSyntax = """[#*_]|\[.*\]\(.*\)""".toRegex()
+            val regexMultiLineBreak = """\n{3,}""".toRegex()
+            val regexIndent = """^\s+""".toRegex()
+            val regexLatex = """\$(.*?)\$""".toRegex()
+
 
             val titleMatch = regexTitle.find(fileContent)
             val dateMatch = regexDate.find(fileContent)
@@ -25,11 +29,19 @@ class PostService(
             val date = dateMatch?.groupValues?.getOrNull(1)
 
             if (title != null && date != null) {
-                val content = fileContent
+                val contentWithoutHeader = fileContent.split("---").getOrNull(2)?.trim() ?: ""
+
+                val content = contentWithoutHeader
                     .replace(regexCodeBlocks, "") // Remove code blocks
                     .replace(regexHtmlTags, "")   // Remove HTML tags
                     .replace(regexMarkdownSyntax, "") // Remove Markdown syntax elements
-                    .trim()                       // Trim leading and trailing spaces
+                    .replace(regexMultiLineBreak, "\n\n") // Replace multiple consecutive newlines with two newlines
+                    .replace(regexIndent, "") // Remove indentation by replacing leading spaces at the start of each line
+                    .replace(regexLatex) { result ->
+                        result.groupValues[1] // Remove LaTeX expressions and keep the inner content
+                    }
+                    .trim()
+                // Trim leading and trailing spaces
                 val regex = """<img\s+src="([^"]+)""".toRegex()
                 val matches = regex.findAll(fileContent)
                 val imagePaths = matches.map { it.groupValues[1].replace("@image", "/docs/images") }.toList()
@@ -50,14 +62,20 @@ class PostService(
         if (gitService.checkIfCloneRequired())
             gitService.cloneRemoteRepository()
 
-        val latestCommitHash = gitService.getLatestCommitHash()
+        gitService.fetchRemoteChanges()
+        gitService.pullRemoteChanges()
+
+//        val latestCommitHash = gitService.getLatestCommitHash()
+        val latestCommitHash = "c71525820d674c1d967cae5973a6a8099775bd52"
         val previousCommitHash =
             gitService.getPreviousCommitHash(latestCommitHash) ?: throw RuntimeException("이전 커밋이 없어요!")
 
         val changedFiles = gitService.getChangedFiles(previousCommitHash, latestCommitHash)
 
         // Filter files that are in the '/docs/posts/' directory
-        val targetFiles = changedFiles.filter { it.startsWith("/docs/posts/") }
+        val targetFiles = changedFiles.filter {
+            it.startsWith("docs/posts/") && it.endsWith(".md")
+        }
 
         return readFiles(GitService.localRepoPath, targetFiles)
     }

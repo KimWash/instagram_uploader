@@ -8,9 +8,6 @@ fun main(args: Array<String>) {
     publish()
 }
 
-val dateFormatter = SimpleDateFormat("yyyy년 MM월 dd일")
-
-
 fun publish() {
     val gitService = GitService()
     val postService = PostService(gitService)
@@ -19,6 +16,7 @@ fun publish() {
 
     newPosts.forEach {
 
+        val image = if (it.images?.size == 0) createImg(it.title).readBytes() else it.images?.get(0)
         val options = MediaConfigureTimelineRequest.MediaConfigurePayload()
             .caption(
                 """
@@ -26,24 +24,24 @@ fun publish() {
                 ${
                     it.content.substring(
                         0,
-                        100
+                        200
                     )
-                }...
+                }
+                ...
+                
                 더 보려면 프로필의 블로그 링크에 접속해주세요!
                 이 글은 봇에 의해 자동 작성된 글입니다. - Developed by KimWash
             """.trimIndent()
             )
 
-
-
         client.actions()
             .timeline()
-            .uploadPhoto(it.images?.get(0), options)
+            .uploadPhoto(image, options)
             .thenAccept {
                 println(
                     """
                     --------------------------
-                   "Successfully uploaded!" 
+                   "Successfully uploaded!"
                     --------------------------
                 """.trimIndent()
                 )

@@ -19,6 +19,5 @@ fun login(): IGClient {
     return IGClient.builder()
         .username(System.getenv("INSTARGRAM_USERNAME"))
         .password(System.getenv("INSTARGRAM_PASSWORD"))
-        .onTwoFactor { client, response -> IGChallengeUtils.resolveTwoFactor(client, response, inputCode) }
         .login()
 }

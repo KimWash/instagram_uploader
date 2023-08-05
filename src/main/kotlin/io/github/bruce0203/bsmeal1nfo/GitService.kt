@@ -2,9 +2,7 @@ package io.github.bruce0203.bsmeal1nfo
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.internal.storage.file.FileRepository
 import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
@@ -20,10 +18,12 @@ class GitService {
     private val gitAccessToken = System.getenv("GITHUB_TOKEN")
     private val gitRepository = System.getenv("GITHUB_REPOSITORY")
 
+    private val git = Git.open(File(localRepoPath))
+
 
     fun checkIfCloneRequired(): Boolean {
         val directory = File(localRepoPath)
-        return directory.exists() && directory.isDirectory && directory.listFiles()?.isNotEmpty() == true
+        return !(directory.exists() && directory.isDirectory && directory.listFiles()?.isNotEmpty() == true)
     }
 
     fun cloneRemoteRepository() {
@@ -41,15 +41,14 @@ class GitService {
 
 
     fun getLatestCommitHash(): String {
-        val repo: Repository = FileRepository(localRepoPath)
-        val git = Git(repo)
+        git.checkout().setName("dev").call() // Checkout the 'dev' branch
         val latestCommit: RevCommit = git.log().setMaxCount(1).call().iterator().next()
         return latestCommit.id.name
     }
 
     fun getPreviousCommitHash(latestCommitHash: String): String? {
-        val repo: Repository = FileRepository(localRepoPath)
-        val walk = RevWalk(repo)
+        git.checkout().setName("dev").call() // Checkout the 'dev' branch
+        val walk = RevWalk(git.repository)
         val latestCommit: RevCommit = walk.parseCommit(ObjectId.fromString(latestCommitHash))
         val previousCommit: RevCommit? = walk.parseCommit(latestCommit.getParent(0).id)
         walk.close()
@@ -57,17 +56,16 @@ class GitService {
     }
 
     fun getChangedFiles(oldCommit: String, newCommit: String): List<String> {
-        val repo: Repository = FileRepository(localRepoPath)
-        val git = Git(repo)
+        git.checkout().setName("dev").call() // Checkout the 'dev' branch
 
         val oldTreeIter = CanonicalTreeParser().apply {
-            val oldTreeId: ObjectId = repo.resolve("$oldCommit^{tree}")
-            this.reset(repo.newObjectReader(), oldTreeId)
+            val oldTreeId: ObjectId = git.repository.resolve("$oldCommit^{tree}")
+            this.reset(git.repository.newObjectReader(), oldTreeId)
         }
 
         val newTreeIter = CanonicalTreeParser().apply {
-            val newTreeId: ObjectId = repo.resolve("$newCommit^{tree}")
-            this.reset(repo.newObjectReader(), newTreeId)
+            val newTreeId: ObjectId = git.repository.resolve("$newCommit^{tree}")
+            this.reset(git.repository.newObjectReader(), newTreeId)
         }
 
         val diffEntries: List<DiffEntry> = git.diff()
@@ -75,7 +73,24 @@ class GitService {
             .setNewTree(newTreeIter)
             .call()
 
-        return diffEntries.map { it.newPath }
+        return diffEntries.filter {
+            println(it.changeType)
+            it.changeType == DiffEntry.ChangeType.ADD
+        }
+            .map { it.newPath }
+    }
+
+    fun fetchRemoteChanges() {
+        val git = Git.open(File(localRepoPath))
+
+        git.fetch().call() // Fetch changes from the remote repository
+    }
+
+    fun pullRemoteChanges() {
+        val git = Git.open(File(localRepoPath))
+
+        git.pull().setRemoteBranchName("dev")
+            .call() // Pull changes from the remote repository and merge them into the local branch
     }
 
 }
