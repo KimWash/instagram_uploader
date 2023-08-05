@@ -1,7 +1,6 @@
 package io.github.bruce0203.bsmeal1nfo
 
 import java.io.File
-import java.lang.RuntimeException
 
 class PostService(
     private val gitService: GitService
@@ -9,6 +8,7 @@ class PostService(
 
     private fun readFiles(repoPath: String, targetFiles: List<String>): List<Post> {
         val filesContent = mutableListOf<Post>()
+        FileAssert.printDirectoryTree(File(repoPath))
         for (fileRelativePath in targetFiles) {
             val fileAbsolutePath = File(repoPath, fileRelativePath)
             val fileContent = fileAbsolutePath.readText()
@@ -47,7 +47,8 @@ class PostService(
                 // Trim leading and trailing spaces
                 val regex = """<img\s+src="([^"]+)""".toRegex()
                 val matches = regex.findAll(fileContent)
-                val imagePaths = matches.map { it.groupValues[1].replace("@image", "/docs/images") }.toList()
+
+                val imagePaths = matches.map { it.groupValues[1].replace("@image", "docs/images") }.toList()
                 val images = imagePaths.map {
                     val imageFile = File("${GitService.localRepoPath}/${imagePaths}")
                     imageFile.readBytes()
@@ -69,7 +70,6 @@ class PostService(
         gitService.pullRemoteChanges()
 
         val latestCommitHash = gitService.getLatestCommitHash()
-//        val latestCommitHash = "c71525820d674c1d967cae5973a6a8099775bd52"
         val previousCommitHash =
             gitService.getPreviousCommitHash(latestCommitHash) ?: throw RuntimeException("이전 커밋이 없어요!")
 
