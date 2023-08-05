@@ -28,7 +28,7 @@ jobs:
         with:
           title: "jar archive"
           automatic_release_tag: "latest"
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.GH_TOKEN }}"
           files: |
             build/libs/*.jar
           prerelease: false
