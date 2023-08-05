@@ -1,8 +1,13 @@
 package io.github.bruce0203.bsmeal1nfo
 
 import com.github.instagram4j.instagram4j.requests.media.MediaConfigureTimelineRequest
+import java.awt.image.BufferedImage
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
+import javax.imageio.ImageIO
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
@@ -18,7 +23,13 @@ fun publish() {
 
     newPosts.forEach {
 
-        val image = if (it.images?.size == 0) createImg(it.title).readBytes() else it.images?.get(0)
+        val image = (if (it.images?.size == 0) createImg(it.title).readBytes() else {
+            val imgFile = it.images?.get(0)
+            val jpgFile = File("${imgFile?.nameWithoutExtension}.jpg")
+            pngToJpg(imgFile!!, jpgFile)
+            ImageIO.write(squareImage(ImageIO.read(jpgFile), BufferedImage.TYPE_INT_RGB), "jpg", jpgFile)
+            jpgFile.readBytes()
+        })
         val options = MediaConfigureTimelineRequest.MediaConfigurePayload()
             .caption(
                 """

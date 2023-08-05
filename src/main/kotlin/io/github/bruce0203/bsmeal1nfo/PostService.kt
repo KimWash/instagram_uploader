@@ -50,8 +50,7 @@ class PostService(
 
                 val imagePaths = matches.map { it.groupValues[1].replace("@image", "docs/images") }.toList()
                 val images = imagePaths.map {
-                    val imageFile = File("${GitService.localRepoPath}/${it}")
-                    imageFile.readBytes()
+                    File("${GitService.localRepoPath}/${it}")
                 }
 
                 filesContent.add(Post(title, date, content, images))
