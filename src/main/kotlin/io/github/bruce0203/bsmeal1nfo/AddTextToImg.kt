@@ -4,6 +4,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.GraphicsEnvironment
 import java.io.File
+import java.lang.RuntimeException
 import java.util.Properties
 import javax.imageio.ImageIO
 
@@ -17,7 +18,9 @@ object AddTextToImg {
         val g = image.graphics
         //set font
         val prop = Properties()
-        prop.load(File("assets/config/drawing.properties").bufferedReader())
+        val config = object {}::class.java.getResource("assets/config/drawing.properties")?.toURI() ?: throw RuntimeException()
+
+        prop.load(File(config).bufferedReader())
         g.color = hex2Rgb(prop["draw-color"].toString())
         g.font = getFont().deriveFont(prop["draw-font-size"].toString().toFloat())
         txt.split("\n").forEachIndexed { ind, str ->
@@ -32,8 +35,10 @@ object AddTextToImg {
         ImageIO.write(image, "png", out)
     }
 
-    fun getFont(): Font {
-        val font: Font = Font.createFont(Font.TRUETYPE_FONT, File("assets/font/font.ttf"))
+    private fun getFont(): Font {
+        val fontResource = object {}::class.java.getResource("assets/config/drawing.properties")?.toURI() ?: throw RuntimeException()
+
+        val font: Font = Font.createFont(Font.TRUETYPE_FONT, File(fontResource))
         val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
         ge.registerFont(font)
         return font

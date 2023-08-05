@@ -3,11 +3,13 @@ package io.github.bruce0203.bsmeal1nfo
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
+import java.lang.RuntimeException
 import javax.imageio.ImageIO
 
 fun createImg(title: String): File {
     val png = File("output/dist.png")
-    AddTextToImg.execute(File("assets/image/image.png"), "새로운 글\n${title}", png)
+    val img = object {}::class.java.getResource("assets/image/image.png")?.toURI() ?: throw RuntimeException()
+    AddTextToImg.execute(File(img), "새로운 글\n${title}", png)
     val jpg = File("output/dist.jpg")
     pngToJpg(png, jpg)
     return jpg
