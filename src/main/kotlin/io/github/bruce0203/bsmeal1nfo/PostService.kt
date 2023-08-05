@@ -36,7 +36,10 @@ class PostService(
                     .replace(regexHtmlTags, "")   // Remove HTML tags
                     .replace(regexMarkdownSyntax, "") // Remove Markdown syntax elements
                     .replace(regexMultiLineBreak, "\n\n") // Replace multiple consecutive newlines with two newlines
-                    .replace(regexIndent, "") // Remove indentation by replacing leading spaces at the start of each line
+                    .replace(
+                        regexIndent,
+                        ""
+                    ) // Remove indentation by replacing leading spaces at the start of each line
                     .replace(regexLatex) { result ->
                         result.groupValues[1] // Remove LaTeX expressions and keep the inner content
                     }
@@ -59,8 +62,8 @@ class PostService(
     fun getPosts(): List<Post> {
 
         // Clone the remote GitHub repository
-        if (gitService.checkIfCloneRequired())
-            gitService.cloneRemoteRepository()
+//        if (gitService.checkIfCloneRequired())
+//            gitService.cloneRemoteRepository()
 
         gitService.fetchRemoteChanges()
         gitService.pullRemoteChanges()

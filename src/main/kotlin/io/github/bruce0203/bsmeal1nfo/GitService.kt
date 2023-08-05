@@ -17,28 +17,20 @@ class GitService {
     private val gitUsername = System.getenv("GITHUB_USERNAME")
     private val gitAccessToken = System.getenv("GITHUB_TOKEN")
     private val gitRepository = System.getenv("GITHUB_REPOSITORY")
+    private val remoteRepoURI = "https://github.com/${gitUsername}/${gitRepository}.git"
 
-    private val git = Git.open(File(localRepoPath))
+    private val git = Git.cloneRepository()
+        .setURI(remoteRepoURI)
+        .setDirectory(File(localRepoPath))
+        // Use access token for HTTPS or SSH for authentication
+        .setCredentialsProvider(UsernamePasswordCredentialsProvider(gitAccessToken, ""))
+        .call()
 
 
     fun checkIfCloneRequired(): Boolean {
         val directory = File(localRepoPath)
         return !(directory.exists() && directory.isDirectory && directory.listFiles()?.isNotEmpty() == true)
     }
-
-    fun cloneRemoteRepository() {
-        val remoteRepoURI = "https://github.com/${gitUsername}/${gitRepository}.git"
-
-        val git: Git = Git.cloneRepository()
-            .setURI(remoteRepoURI)
-            .setDirectory(File(localRepoPath))
-            // Use access token for HTTPS or SSH for authentication
-            .setCredentialsProvider(UsernamePasswordCredentialsProvider(gitAccessToken, ""))
-            .call()
-
-        git.close()
-    }
-
 
     fun getLatestCommitHash(): String {
         git.checkout().setName("dev").call() // Checkout the 'dev' branch
