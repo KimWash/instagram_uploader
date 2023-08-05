@@ -68,8 +68,8 @@ class PostService(
         gitService.fetchRemoteChanges()
         gitService.pullRemoteChanges()
 
-//        val latestCommitHash = gitService.getLatestCommitHash()
-        val latestCommitHash = "c71525820d674c1d967cae5973a6a8099775bd52"
+        val latestCommitHash = gitService.getLatestCommitHash()
+//        val latestCommitHash = "c71525820d674c1d967cae5973a6a8099775bd52"
         val previousCommitHash =
             gitService.getPreviousCommitHash(latestCommitHash) ?: throw RuntimeException("이전 커밋이 없어요!")
 
