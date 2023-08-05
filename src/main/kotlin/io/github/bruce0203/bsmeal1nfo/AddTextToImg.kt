@@ -18,8 +18,8 @@ object AddTextToImg {
         val g = image.graphics
         //set font
         val prop = Properties()
-        val config = object {}::class.java.getResource("config/drawing.properties")?.toURI() ?: throw RuntimeException()
 
+        val config = object {}.javaClass.classLoader.getResource("config/drawing.properties")?.toURI() ?: throw RuntimeException("리소스 못 불러왔어요!")
         prop.load(File(config).bufferedReader())
         g.color = hex2Rgb(prop["draw-color"].toString())
         g.font = getFont().deriveFont(prop["draw-font-size"].toString().toFloat())
@@ -36,7 +36,7 @@ object AddTextToImg {
     }
 
     private fun getFont(): Font {
-        val fontResource = object {}::class.java.getResource("config/drawing.properties")?.toURI() ?: throw RuntimeException()
+        val fontResource = object {}.javaClass.classLoader.getResource("config/drawing.properties")?.toURI() ?: throw RuntimeException("리소스 못 불러왔어요!")
 
         val font: Font = Font.createFont(Font.TRUETYPE_FONT, File(fontResource))
         val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
