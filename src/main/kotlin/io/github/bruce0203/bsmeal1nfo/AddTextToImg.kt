@@ -37,7 +37,7 @@ object AddTextToImg {
     }
 
     private fun getFont(): Font {
-        val fontResource = object {}.javaClass.classLoader.getResourceAsStream("config/drawing.properties")
+        val fontResource = object {}.javaClass.classLoader.getResourceAsStream("font/font.ttf")
 
         val font: Font = Font.createFont(Font.TRUETYPE_FONT, fontResource)
         val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
