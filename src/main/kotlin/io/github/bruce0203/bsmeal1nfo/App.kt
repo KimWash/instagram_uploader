@@ -1,6 +1,7 @@
 package io.github.bruce0203.bsmeal1nfo
 
 import com.github.instagram4j.instagram4j.requests.media.MediaConfigureTimelineRequest
+import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import kotlin.system.exitProcess
 
@@ -13,6 +14,7 @@ fun publish() {
     val postService = PostService(gitService)
     val client = login()
     val newPosts = postService.getPosts()
+
 
     newPosts.forEach {
 
@@ -28,7 +30,7 @@ fun publish() {
                     )
                 }
                 ...
-                
+
                 더 보려면 프로필의 블로그 링크에 접속해주세요!
                 이 글은 봇에 의해 자동 작성된 글입니다. - Developed by KimWash
             """.trimIndent()

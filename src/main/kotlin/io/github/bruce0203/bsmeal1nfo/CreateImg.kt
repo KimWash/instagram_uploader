@@ -8,7 +8,7 @@ import javax.imageio.ImageIO
 
 fun createImg(title: String): File {
     val png = File("output/dist.png")
-    val img = object {}::class.java.getResource("assets/image/image.png")?.toURI() ?: throw RuntimeException()
+    val img = object {}::class.java.getResource("image/image.png")?.toURI() ?: throw RuntimeException()
     AddTextToImg.execute(File(img), "새로운 글\n${title}", png)
     val jpg = File("output/dist.jpg")
     pngToJpg(png, jpg)
